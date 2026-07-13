@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>بصمتي | إدارة أوقات العمل</title>
+    
+    <!-- ميزات تحويل الصفحة لتطبيق موبايل (PWA / iOS Web App) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="بصمتي">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <!-- أيقونة الموقع والموبايل الفخمة -->
+    <link rel="icon" href="watermarked_img_6559831621308037342.png" type="image/x-icon">
+    <link rel="apple-touch-icon" href="watermarked_img_6559831621308037342.png">
+    
+    <!-- Tailwind CSS & SweetAlert2 & Fonts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ================= إعدادات وتخصيص الثيم الفخم ================= */
+        :root {
+            --bg-dark: #0a0a0a;
+            --card-dark: rgba(22, 22, 22, 0.75);
+            --gold-light: #f3e5ab;
+            --gold-primary: #d4af37;
+            --gold-hover: #aa8c2c;
+            --border-glow: rgba(212, 175, 55, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Tajawal', sans-serif !important;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* ================= شاشة التحميل الذكية ================= */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #050505;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loading-logo {
+            width: 140px;
+            height: 140px;
+            border-radius: 24px;
+            margin-bottom: 25px;
+            border: 2px solid rgba(212, 175, 55, 0.3);
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.25);
+            animation: logoPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(0.96); opacity: 0.9; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
+            50% { transform: scale(1.04); opacity: 1; box-shadow: 0 0 40px rgba(212, 175, 55, 0.5); }
+        }
+
+        .spinner {
+            width: 35px;
+            height: 35px;
+            border: 3px solid rgba(212, 175, 55, 0.1);
+            border-top: 3px solid var(--gold-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ================= الكروت الزجاجية (Glassmorphism) ================= */
+        .glass-card {
+            background: var(--card-dark);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .glass-card:hover {
+            border-color: rgba(212, 175, 55, 0.25);
+            box-shadow: 0 12px 40px 0 rgba(212, 175, 55, 0.08);
+        }
+
+        /* ================= أزرار التابات النشطة ================= */
+        .tab-active {
+            background: linear-gradient(135deg, var(--gold-primary), var(--gold-hover)) !important;
+            color: #000000 !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
+        }
+
+        /* اتجاه الأرقام من اليسار لليمين */
+        .dir-ltr {
+            direction: ltr !important;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col items-center p-4 pb-12 select-none">
+
+    <!-- شاشة التحميل الاستعراضية للوجو الخاص بك -->
+    <div id="loading-screen">
+        <img src="mostafa.ico" alt="Mostafa Bahaa Logo" class="loading-logo">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- حاوية التطبيق الرئيسية المتناسقة وانسيابية الظهور -->
+    <div id="app-content" class="w-full max-w-md space-y-6 mt-4 opacity-0 transition-opacity duration-700">
+
+        <!-- الهيدر المطور بأيقونة ذهبية متناغمة مع البصمة -->
+        <div class="text-center space-y-2">
+            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 border border-[var(--gold-primary)]/30 text-[var(--gold-primary)] mb-1 shadow-xl shadow-black/50">
+                <svg class="w-8 h-8 filter drop-shadow-[0_0_5px_rgba(212,175,55,0.4)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 009 11V7a4 4 0 00-8 0v4c0 2.503-.664 4.846-1.847 6.88kM19.233 13.514l-.078-.112A14.018 14.018 0 0017 11V7a5 5 0 10-10 0v4c0 .691-.048 1.371-.141 2.036M15 11h.01M19 21l-4-4m0 0l4-4m-4 4h6"></path>
+                </svg>
+            </div>
+            <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--gold-light)] to-[var(--gold-primary)] tracking-wide">تطبيق بصمتي الرقمي</h1>
+            <p class="text-xs text-neutral-400 tracking-widest uppercase">Cloud Sync • Google Sheets</p>
+        </div>
+
+        <!-- أزرار التنقل بين التابات (بمظهر داكن عصري) -->
+        <div class="grid grid-cols-2 gap-2 bg-neutral-900/90 p-1.5 rounded-xl text-sm font-medium border border-neutral-800/80 shadow-inner">
+            <button id="tabQuickBtn" onclick="switchTab('quick')" class="py-3 rounded-lg text-center transition-all duration-300 text-neutral-400 tab-active">
+                تسجيل سريع (اليوم)
+            </button>
+            <button id="tabManualBtn" onclick="switchTab('manual')" class="py-3 rounded-lg text-center text-neutral-400 transition-all duration-300">
+                إدخال يدوي / قديم
+            </button>
+        </div>
+
+        <!-- تاب 1: التسجيل السريع (أزرار زجاجية فخمة بتأثيرات توهج) -->
+        <div id="quickTab" class="glass-card rounded-2xl p-6 space-y-5">
+            <p class="text-xs text-neutral-400 text-center font-medium">تسجيل اللحظة الحالية فوراً في السيرفر</p>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="sendQuickStamp('checkIn')" class="bg-gradient-to-br from-emerald-600/90 to-emerald-800/90 hover:from-emerald-500 hover:to-emerald-700 active:scale-95 text-white p-5 rounded-xl transition-all duration-300 shadow-lg shadow-emerald-900/20 border border-emerald-500/20 flex flex-col items-center justify-center gap-2 group">
+                    <svg class="w-7 h-7 text-emerald-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span class="font-bold text-sm tracking-wide">بصمة دخول</span>
+                </button>
+                <button onclick="sendQuickStamp('checkOut')" class="bg-gradient-to-br from-rose-600/90 to-rose-800/90 hover:from-rose-500 hover:to-rose-700 active:scale-95 text-white p-5 rounded-xl transition-all duration-300 shadow-lg shadow-rose-900/20 border border-rose-500/20 flex flex-col items-center justify-center gap-2 group">
+                    <svg class="w-7 h-7 text-rose-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span class="font-bold text-sm tracking-wide">بصمة خروج</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- تاب 2: الإدخال اليدوي والتاريخ القديم -->
+        <div id="manualTab" class="glass-card rounded-2xl p-6 hidden animate-fadeIn">
+            <form id="manualForm" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-neutral-400 mb-1.5 mr-1">التاريخ</label>
+                    <input type="date" id="mDate" required class="w-full px-4 py-3 rounded-xl bg-neutral-900/60 border border-neutral-800 focus:border-[var(--gold-primary)] text-white outline-none text-sm font-medium transition-colors">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-400 mb-1.5 mr-1">وقت الدخول</label>
+                        <input type="time" id="mCheckIn" required class="w-full px-4 py-3 rounded-xl bg-neutral-900/60 border border-neutral-800 focus:border-[var(--gold-primary)] text-white outline-none text-sm font-medium transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-400 mb-1.5 mr-1">وقت الخروج</label>
+                        <input type="time" id="mCheckOut" required class="w-full px-4 py-3 rounded-xl bg-neutral-900/60 border border-neutral-800 focus:border-[var(--gold-primary)] text-white outline-none text-sm font-medium transition-colors">
+                    </div>
+                </div>
+                <button type="submit" id="mSubmitBtn" class="w-full bg-gradient-to-r from-[var(--gold-primary)] to-[var(--gold-hover)] hover:brightness-110 active:scale-[0.99] text-black text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-lg shadow-amber-950/20 mt-3">
+                    حفظ اليوم بالكامل
+                </button>
+            </form>
+        </div>
+
+        <!-- كارت الرصيد التراكمي الفخم والشفاف -->
+        <div class="glass-card rounded-2xl p-4 flex justify-between items-center hidden" id="balanceCard">
+            <div class="flex items-center gap-3">
+                <span class="p-2.5 rounded-xl bg-amber-500/10 text-[var(--gold-primary)] border border-amber-500/10 shadow-inner">
+                    <svg class="w-5 h-5 filter drop-shadow-[0_0_3px_rgba(212,175,55,0.2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </span>
+                <span class="text-xs font-bold text-neutral-300">الرصيد التراكمي العام:</span>
+            </div>
+            <span id="globalBalance" class="text-base font-black tracking-wide">0.00 س</span>
+        </div>
+
+        <!-- الفوتر الإحترافي الخاص بك متناسق هندسياً -->
+        <footer class="text-center pt-4 border-t border-neutral-900 text-xs text-neutral-500 tracking-wide font-medium">
+            Developed with <span class="text-red-600 animate-pulse text-sm">&hearts;</span> by 
+            <a href="#" target="_blank" title="Visit My Portfolio" class="text-[var(--gold-primary)] font-bold hover:text-white transition-colors duration-300 ml-0.5">Mostafa Bahaa</a>
+        </footer>
+
+    </div>
+
+    <script>
+        // دالة إخفاء شاشة التحميل وإظهار المحتوى بانسيابية فخمة
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                var loadingScreen = document.getElementById('loading-screen');
+                var appContent = document.getElementById('app-content');
+                
+                loadingScreen.style.opacity = '0';
+                loadingScreen.style.visibility = 'hidden';
+                
+                appContent.style.opacity = '1';
+            }, 1200); // 1.2 ثانية كافية ومريحة جداً للمستخدم
+        });
+
+        // رابط الـ Web App الخاص بك في الـ Google Apps Script
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw63G2VbUoX0O-8-QHTeLl8D5UBVNq1YkCe_bWPlZyU_VMLb-BFmDAR6yKU0Xg4KuNQXQ/exec";
+
+        function switchTab(tab) {
+            const quickTab = document.getElementById('quickTab');
+            const manualTab = document.getElementById('manualTab');
+            const quickBtn = document.getElementById('tabQuickBtn');
+            const manualBtn = document.getElementById('tabManualBtn');
+
+            if(tab === 'quick') {
+                quickTab.classList.remove('hidden');
+                manualTab.classList.add('hidden');
+                quickBtn.classList.add('tab-active');
+                manualBtn.classList.remove('tab-active');
+            } else {
+                manualTab.classList.remove('hidden');
+                quickTab.classList.add('hidden');
+                manualBtn.classList.add('tab-active');
+                quickBtn.classList.remove('tab-active');
+                
+                // تعيين الافتراضيات الذكية لليدوي
+                document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('mCheckIn').value = "11:00";
+                document.getElementById('mCheckOut').value = "19:00";
+            }
+        }
+
+        async function fetchGlobalStats() {
+            try {
+                const res = await fetch(SCRIPT_URL);
+                const data = await res.json();
+                if(data.status === 'success') {
+                    const card = document.getElementById('balanceCard');
+                    const text = document.getElementById('globalBalance');
+                    card.classList.remove('hidden');
+                    const bal = parseFloat(data.overallBalance);
+                    
+                    if(bal > 0) {
+                        text.innerText = `+${bal.toFixed(2)} س`;
+                        text.className = "text-base font-black text-emerald-400 dir-ltr drop-shadow-[0_0_6px_rgba(52,211,153,0.2)]";
+                    } else if(bal < 0) {
+                        text.innerText = `${bal.toFixed(2)}0 س`; // لتجنب سحب السالبات في الواجهة
+                        text.innerText = `${bal.toFixed(2)} س`;
+                        text.className = "text-base font-black text-rose-400 dir-ltr drop-shadow-[0_0_6px_rgba(251,113,133,0.2)]";
+                    } else {
+                        text.innerText = `${bal.toFixed(2)} س`;
+                        text.className = "text-base font-black text-neutral-300 dir-ltr";
+                    }
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function sendRequest(payload) {
+            // تخصيص SweetAlert2 ليتوافق تماماً مع الـ Dark & Gold Theme
+            Swal.fire({
+                title: 'جاري الحفظ والتشفير...',
+                html: 'يرجى عدم إغلاق الصفحة أثناء المزامنة الحية',
+                background: '#121212',
+                color: '#ffffff',
+                allowOutsideClick: false,
+                didOpen: () => { 
+                    Swal.showLoading();
+                    const loadingSpinner = Swal.getPopup().querySelector('.swal2-loader');
+                    if (loadingSpinner) {
+                        loadingSpinner.style.borderTopColor = '#d4af37';
+                    }
+                }
+            });
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: { "Content-Type": "text/plain;charset=utf-8" },
+                    redirect: "follow",
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                
+                if(result.status === 'success') {
+                    let msg = result.message;
+                    if(result.totalHours) {
+                        msg += `<br><span class='text-xs text-neutral-400 block mt-2 font-medium'>ساعات العمل المحسوبة: ${result.totalHours} س (بونص الرصيد: ${result.balance > 0 ? '+'+result.balance : result.balance})</span>`;
+                    }
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تمت العملية بنجاح',
+                        html: msg,
+                        background: '#161616',
+                        color: '#ffffff',
+                        confirmButtonColor: '#d4af37',
+                        confirmButtonText: 'ممتاز',
+                        iconColor: '#10b981'
+                    });
+                    fetchGlobalStats();
+                } else {
+                    throw new Error(result.message);
+                }
+            } catch(e) {
+                Swal.fire({ 
+                    icon: 'error', 
+                    title: 'فشلت العملية', 
+                    text: 'حدث خطأ غير متوقع أثناء الاتصال بقواعد البيانات.',
+                    background: '#161616',
+                    color: '#ffffff',
+                    confirmButtonColor: '#ef4444',
+                    iconColor: '#ef4444'
+                });
+            }
+        }
+
+        function sendQuickStamp(actionType) {
+            const now = new Date();
+            const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const mins = String(now.getMinutes()).padStart(2, '0');
+            const timeStr = `${hours}:${mins}`;
+
+            sendRequest({
+                type: actionType,
+                date: dateStr,
+                time: timeStr
+            });
+        }
+
+        document.getElementById('manualForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            sendRequest({
+                type: 'historical',
+                date: document.getElementById('mDate').value,
+                checkIn: document.getElementById('mCheckIn').value,
+                checkOut: document.getElementById('mCheckOut').value
+            });
+        });
+
+        window.onload = fetchGlobalStats;
+    </script>
+</body>
+</html>
