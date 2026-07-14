@@ -262,29 +262,38 @@
         }
 
         async function fetchGlobalStats() {
-            try {
-                const res = await fetch(SCRIPT_URL);
-                const data = await res.json();
-                if(data.status === 'success') {
-                    const card = document.getElementById('balanceCard');
-                    const text = document.getElementById('globalBalance');
-                    card.classList.remove('hidden');
-                    const bal = parseFloat(data.overallBalance);
-                    
-                    if(bal > 0) {
-                        text.innerText = `+${bal.toFixed(2)} س`;
-                        text.className = "text-base font-black text-emerald-400 dir-ltr drop-shadow-[0_0_6px_rgba(52,211,153,0.2)]";
-                    } else if(bal < 0) {
-                        text.innerText = `${bal.toFixed(2)}0 س`; // لتجنب سحب السالبات في الواجهة
-                        text.innerText = `${bal.toFixed(2)} س`;
-                        text.className = "text-base font-black text-rose-400 dir-ltr drop-shadow-[0_0_6px_rgba(251,113,133,0.2)]";
-                    } else {
-                        text.innerText = `${bal.toFixed(2)} س`;
-                        text.className = "text-base font-black text-neutral-300 dir-ltr";
-                    }
-                }
-            } catch(e) { console.error(e); }
+    try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+        if(data.status === 'success') {
+            const card = document.getElementById('balanceCard');
+            const text = document.getElementById('globalBalance');
+            card.classList.remove('hidden');
+            
+            // تحقق بسيط: هل نحن في بداية شهر جديد؟ 
+            const today = new Date();
+            const isFirstDayOfMonth = today.getDate() === 1;
+
+            let bal = parseFloat(data.overallBalance);
+
+            // إذا كنا في اليوم الأول من الشهر، يمكنك تصفير العداد على الواجهة اختيارياً 
+            // أو ترك الـ Google Sheet ليفلتر البيانات كما في الطريقة الأولى وهو الخيار الأضمن.
+            
+            if(bal > 0) {
+                text.innerText = `+${bal.toFixed(2)} س`;
+                text.className = "text-base font-black text-emerald-400 dir-ltr drop-shadow-[0_0_6px_rgba(52,211,153,0.2)]";
+            } else if(bal < 0) {
+                text.innerText = `${bal.toFixed(2)} س`;
+                text.className = "text-base font-black text-rose-400 dir-ltr drop-shadow-[0_0_6px_rgba(251,113,133,0.2)]";
+            } else {
+                text.innerText = `${bal.toFixed(2)}0 س`;
+                text.innerText = `${bal.toFixed(2)} س`;
+                text.className = "text-base font-black text-neutral-300 dir-ltr";
+            }
         }
+    } catch(e) { console.error(e); }
+}
+     
 
         async function sendRequest(payload) {
             // تخصيص SweetAlert2 ليتوافق تماماً مع الـ Dark & Gold Theme
