@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>بصمتي | إدارة أوقات العمل</title>
+
+    <!-- ربط ملف الـ Manifest لتفعيل الـ PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#d4af37">
     
     <!-- ميزات تحويل الصفحة لتطبيق موبايل (PWA / iOS Web App) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -365,6 +369,15 @@
         });
 
         window.onload = fetchGlobalStats;
+
+        // تسجيل الـ Service Worker للـ PWA
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+            .then(reg => console.log('Service Worker registered successfully!', reg))
+            .catch(err => console.log('Service Worker registration failed:', err));
+    });
+}
     </script>
 </body>
 </html>
