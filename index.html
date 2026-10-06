@@ -1,392 +1,325 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>بصمتي | إدارة أوقات العمل</title>
-
-    <!-- ربط ملف الـ Manifest لتفعيل الـ PWA -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>بصمتي | إدارة أوقات العمل</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#d4af37">
-    
-    <!-- ميزات تحويل الصفحة لتطبيق موبايل (PWA / iOS Web App) -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="بصمتي">
-    <meta name="mobile-web-app-capable" content="yes">
-    
-    <!-- أيقونة الموقع والموبايل الفخمة -->
-    <link rel="icon" href="watermarked_img_6559831621308037342.png" type="image/x-icon">
-    <link rel="apple-touch-icon" href="watermarked_img_6559831621308037342.png">
-    
-    <!-- Tailwind CSS & SweetAlert2 & Fonts -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
-    
-    <style>
-        /* ================= إعدادات وتخصيص الثيم الفخم ================= */
-        :root {
-            --bg-dark: #0a0a0a;
-            --card-dark: rgba(22, 22, 22, 0.75);
-            --gold-light: #f3e5ab;
-            --gold-primary: #d4af37;
-            --gold-hover: #aa8c2c;
-            --border-glow: rgba(212, 175, 55, 0.15);
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Tajawal', sans-serif !important;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(212, 175, 55, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.03) 0%, transparent 40%);
-            color: #ffffff;
-            overflow-x: hidden;
-        }
-
-        /* ================= شاشة التحميل الذكية ================= */
-        #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #050505;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
-
-        .loading-logo {
-            width: 140px;
-            height: 140px;
-            border-radius: 24px;
-            margin-bottom: 25px;
-            border: 2px solid rgba(212, 175, 55, 0.3);
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.25);
-            animation: logoPulse 2s infinite ease-in-out;
-        }
-
-        @keyframes logoPulse {
-            0%, 100% { transform: scale(0.96); opacity: 0.9; box-shadow: 0 0 20px rgba(212, 175, 55, 0.2); }
-            50% { transform: scale(1.04); opacity: 1; box-shadow: 0 0 40px rgba(212, 175, 55, 0.5); }
-        }
-
-        .spinner {
-            width: 35px;
-            height: 35px;
-            border: 3px solid rgba(212, 175, 55, 0.1);
-            border-top: 3px solid var(--gold-primary);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            100% { transform: rotate(360deg); }
-        }
-
-        /* ================= الكروت الزجاجية (Glassmorphism) ================= */
-        .glass-card {
-            background: var(--card-dark);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid var(--border-glow);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .glass-card:hover {
-            border-color: rgba(212, 175, 55, 0.25);
-            box-shadow: 0 12px 40px 0 rgba(212, 175, 55, 0.08);
-        }
-
-        /* ================= أزرار التابات النشطة ================= */
-        .tab-active {
-            background: linear-gradient(135deg, var(--gold-primary), var(--gold-hover)) !important;
-            color: #000000 !important;
-            font-weight: 700 !important;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.35);
-        }
-
-        /* اتجاه الأرقام من اليسار لليمين */
-        .dir-ltr {
-            direction: ltr !important;
-            display: inline-block;
-        }
-    </style>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="بصمتي">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="watermarked_img_6559831621308037342.png" type="image/x-icon">
+<link rel="apple-touch-icon" href="watermarked_img_6559831621308037342.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg-dark:#0a0a0a;--card-dark:rgba(22,22,22,.75);--gold-light:#f3e5ab;--gold-primary:#d4af37;--gold-hover:#aa8c2c;--border-glow:rgba(212,175,55,.15)}
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Tajawal',sans-serif!important}
+body{background-color:var(--bg-dark);background-image:radial-gradient(circle at 10% 20%,rgba(212,175,55,.05) 0,transparent 40%),radial-gradient(circle at 90% 80%,rgba(212,175,55,.03) 0,transparent 40%);color:#fff;overflow-x:hidden}
+input,select,textarea,button{font-size:16px}
+#loading-screen{position:fixed;inset:0;background:#050505;display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:9999;transition:opacity .5s,visibility .5s}
+.loading-logo{width:140px;height:140px;border-radius:24px;margin-bottom:25px;border:2px solid rgba(212,175,55,.3);box-shadow:0 0 30px rgba(212,175,55,.25);animation:logoPulse 2s infinite ease-in-out}
+@keyframes logoPulse{0%,100%{transform:scale(.96);opacity:.9}50%{transform:scale(1.04);opacity:1;box-shadow:0 0 40px rgba(212,175,55,.5)}}
+.spinner{width:35px;height:35px;border:3px solid rgba(212,175,55,.1);border-top:3px solid var(--gold-primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{100%{transform:rotate(360deg)}}
+.glass-card{background:var(--card-dark);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border-glow);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.gold-text{color:transparent;background:linear-gradient(90deg,var(--gold-light),var(--gold-primary));-webkit-background-clip:text;background-clip:text}
+.num{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.fld{width:100%;padding:12px 14px;border-radius:12px;background:rgba(23,23,23,.7);border:1px solid #262626;color:#fff;outline:none;color-scheme:dark;transition:border .2s}
+.fld:focus{border-color:var(--gold-primary)}
+.swin{width:100%;margin:6px 0;padding:11px;border-radius:12px;background:#0f0f0f;border:1px solid #333;color:#fff;color-scheme:dark}
+.btn-gold{background:linear-gradient(90deg,var(--gold-primary),var(--gold-hover));color:#000;font-weight:800;border-radius:12px;padding:12px;width:100%;transition:.2s}
+.btn-gold:active,.pbtn:active{transform:scale(.97)}
+.pbtn{color:#fff;padding:18px 8px;border-radius:16px;display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;transition:.25s;border:1px solid rgba(255,255,255,.1)}
+.pbtn.in{background:linear-gradient(135deg,rgba(5,150,105,.95),rgba(6,95,70,.95))}
+.pbtn.out{background:linear-gradient(135deg,rgba(225,29,72,.95),rgba(159,18,57,.95))}
+.pbtn:disabled{opacity:.35;filter:grayscale(.5)}
+.ib2{padding:8px 14px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid #262626;font-size:13px;color:#d4d4d4;transition:.2s}
+.ib2:hover{border-color:var(--gold-primary);color:var(--gold-light)}
+.lnk{font-size:12px;color:var(--gold-primary);padding:2px 6px}
+#cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cell{aspect-ratio:1;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:700;border:1px solid transparent;position:relative;transition:.2s;min-height:42px}
+.cell small{font-size:10px;font-weight:500;opacity:.85;height:12px}
+.cell i{position:absolute;top:5px;left:5px;width:6px;height:6px;border-radius:50%;background:var(--gold-primary)}
+.cell:hover{transform:translateY(-2px)}
+.c-ok{background:rgba(16,185,129,.18);color:#6ee7b7;border-color:rgba(16,185,129,.3)}
+.c-short{background:rgba(249,115,22,.18);color:#fdba74;border-color:rgba(249,115,22,.3)}
+.c-missing{background:rgba(244,63,94,.2);color:#fda4af;border-color:rgba(244,63,94,.45)}
+.c-incomp{background:rgba(234,179,8,.18);color:#fde047;border-color:rgba(234,179,8,.35)}
+.c-leave{background:rgba(59,130,246,.18);color:#93c5fd;border-color:rgba(59,130,246,.3)}
+.c-off{background:rgba(255,255,255,.04);color:#737373}
+.c-future{background:rgba(255,255,255,.02);color:#525252}
+.c-prog{background:rgba(212,175,55,.12);color:var(--gold-light);border-color:rgba(212,175,55,.3)}
+.tdy{box-shadow:0 0 0 2px var(--gold-primary)}
+.dot{display:inline-block;width:9px;height:9px;border-radius:3px;margin-left:5px}
+#busy{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold-primary),transparent);z-index:9000;animation:slide 1s infinite linear;display:none}
+@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+</style>
 </head>
-<body class="antialiased min-h-screen flex flex-col items-center p-4 pb-12 select-none">
+<body class="antialiased min-h-screen flex flex-col items-center p-4 pb-10">
+<div id="busy"></div>
 
-    <!-- شاشة التحميل الاستعراضية للوجو الخاص بك -->
-    <div id="loading-screen">
-        <img src="mostafa.ico" alt="Mostafa Bahaa Logo" class="loading-logo">
-        <div class="spinner"></div>
+<div id="loading-screen">
+  <img src="mostafa.ico" alt="Mostafa Bahaa Logo" class="loading-logo">
+  <div class="spinner"></div>
+</div>
+
+<div id="app-content" class="w-full max-w-md lg:max-w-5xl space-y-5 mt-2 opacity-0 transition-opacity duration-700">
+
+  <div class="text-center space-y-2">
+    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 border border-[var(--gold-primary)]/30 text-[var(--gold-primary)] mb-1 shadow-xl shadow-black/50">
+      <svg class="w-8 h-8 filter drop-shadow-[0_0_5px_rgba(212,175,55,0.4)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 009 11V7a4 4 0 00-8 0v4c0 2.503-.664 4.846-1.847 6.88kM19.233 13.514l-.078-.112A14.018 14.018 0 0017 11V7a5 5 0 10-10 0v4c0 .691-.048 1.371-.141 2.036M15 11h.01M19 21l-4-4m0 0l4-4m-4 4h6"></path></svg>
     </div>
-    
-    <!-- حاوية التطبيق الرئيسية المتناسقة وانسيابية الظهور -->
-    <div id="app-content" class="w-full max-w-md space-y-6 mt-4 opacity-0 transition-opacity duration-700">
+    <h1 class="text-2xl font-extrabold gold-text tracking-wide">تطبيق بصمتي الرقمي</h1>
+    <p class="text-xs text-neutral-400 tracking-widest uppercase">Cloud Sync • Google Sheets</p>
+  </div>
 
-        <!-- الهيدر المطور بأيقونة ذهبية متناغمة مع البصمة -->
-        <div class="text-center space-y-2">
-            <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-neutral-900 to-neutral-800 border border-[var(--gold-primary)]/30 text-[var(--gold-primary)] mb-1 shadow-xl shadow-black/50">
-                <svg class="w-8 h-8 filter drop-shadow-[0_0_5px_rgba(212,175,55,0.4)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 009 11V7a4 4 0 00-8 0v4c0 2.503-.664 4.846-1.847 6.88kM19.233 13.514l-.078-.112A14.018 14.018 0 0017 11V7a5 5 0 10-10 0v4c0 .691-.048 1.371-.141 2.036M15 11h.01M19 21l-4-4m0 0l4-4m-4 4h6"></path>
-                </svg>
-            </div>
-            <h1 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[var(--gold-light)] to-[var(--gold-primary)] tracking-wide">تطبيق بصمتي الرقمي</h1>
-            <p class="text-xs text-neutral-400 tracking-widest uppercase">Cloud Sync • Google Sheets</p>
-        </div>
+  <!-- تسجيل الدخول -->
+  <form id="loginView" class="glass-card rounded-2xl p-6 space-y-4 max-w-md mx-auto hidden" onsubmit="doLogin(event)">
+    <h2 class="font-bold text-center text-neutral-200">تسجيل الدخول</h2>
+    <input id="lc" class="fld" placeholder="كود الموظف" autocomplete="username" inputmode="text" required>
+    <input id="lp" class="fld" type="password" placeholder="الباسوورد" autocomplete="current-password" required>
+    <label class="flex items-center gap-2 text-sm text-neutral-400"><input id="lr" type="checkbox" class="accent-[#d4af37] w-4 h-4"> احفظ دخولي على الجهاز ده</label>
+    <button class="btn-gold">دخول</button>
+  </form>
 
-        <!-- أزرار التنقل بين التابات (بمظهر داكن عصري) -->
-        <div class="grid grid-cols-2 gap-2 bg-neutral-900/90 p-1.5 rounded-xl text-sm font-medium border border-neutral-800/80 shadow-inner">
-            <button id="tabQuickBtn" onclick="switchTab('quick')" class="py-3 rounded-lg text-center transition-all duration-300 text-neutral-400 tab-active">
-                تسجيل سريع (اليوم)
-            </button>
-            <button id="tabManualBtn" onclick="switchTab('manual')" class="py-3 rounded-lg text-center text-neutral-400 transition-all duration-300">
-                إدخال يدوي / قديم
-            </button>
-        </div>
-
-        <!-- تاب 1: التسجيل السريع (أزرار زجاجية فخمة بتأثيرات توهج) -->
-        <div id="quickTab" class="glass-card rounded-2xl p-6 space-y-5">
-            <p class="text-xs text-neutral-400 text-center font-medium">تسجيل اللحظة الحالية فوراً في السيرفر</p>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="sendQuickStamp('checkIn')" class="bg-gradient-to-br from-emerald-600/90 to-emerald-800/90 hover:from-emerald-500 hover:to-emerald-700 active:scale-95 text-white p-5 rounded-xl transition-all duration-300 shadow-lg shadow-emerald-900/20 border border-emerald-500/20 flex flex-col items-center justify-center gap-2 group">
-                    <svg class="w-7 h-7 text-emerald-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                    </svg>
-                    <span class="font-bold text-sm tracking-wide">بصمة دخول</span>
-                </button>
-                <button onclick="sendQuickStamp('checkOut')" class="bg-gradient-to-br from-rose-600/90 to-rose-800/90 hover:from-rose-500 hover:to-rose-700 active:scale-95 text-white p-5 rounded-xl transition-all duration-300 shadow-lg shadow-rose-900/20 border border-rose-500/20 flex flex-col items-center justify-center gap-2 group">
-                    <svg class="w-7 h-7 text-rose-300 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                    </svg>
-                    <span class="font-bold text-sm tracking-wide">بصمة خروج</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- تاب 2: الإدخال اليدوي والتاريخ القديم -->
-        <div id="manualTab" class="glass-card rounded-2xl p-6 hidden animate-fadeIn">
-            <form id="manualForm" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-bold text-neutral-400 mb-1.5 mr-1">التاريخ</label>
-                    <input type="date" id="mDate" required class="w-full px-4 py-3 rounded-xl bg-neutral-900/60 border border-neutral-800 focus:border-[var(--gold-primary)] text-white outline-none text-sm font-medium transition-colors">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-400 mb-1.5 mr-1">وقت الدخول</label>
-                        <input type="time" id="mCheckIn" required class="w-full px-4 py-3 rounded-xl bg-neutral-900/60 border border-neutral-800 focus:border-[var(--gold-primary)] text-white outline-none text-sm font-medium transition-colors">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-neutral-400 mb-1.5 mr-1">وقت الخروج</label>
-                        <input type="time" id="mCheckOut" required class="w-full px-4 py-3 rounded-xl bg-neutral-900/60 border border-neutral-800 focus:border-[var(--gold-primary)] text-white outline-none text-sm font-medium transition-colors">
-                    </div>
-                </div>
-                <button type="submit" id="mSubmitBtn" class="w-full bg-gradient-to-r from-[var(--gold-primary)] to-[var(--gold-hover)] hover:brightness-110 active:scale-[0.99] text-black text-sm font-extrabold py-3.5 rounded-xl transition-all shadow-lg shadow-amber-950/20 mt-3">
-                    حفظ اليوم بالكامل
-                </button>
-            </form>
-        </div>
-
-        <!-- كارت الرصيد التراكمي الفخم والشفاف -->
-        <div class="glass-card rounded-2xl p-4 flex justify-between items-center hidden" id="balanceCard">
-            <div class="flex items-center gap-3">
-                <span class="p-2.5 rounded-xl bg-amber-500/10 text-[var(--gold-primary)] border border-amber-500/10 shadow-inner">
-                    <svg class="w-5 h-5 filter drop-shadow-[0_0_3px_rgba(212,175,55,0.2)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                </span>
-                <span class="text-xs font-bold text-neutral-300">الرصيد التراكمي العام:</span>
-            </div>
-            <span id="globalBalance" class="text-base font-black tracking-wide">0.00 س</span>
-        </div>
-
-        <!-- الفوتر الإحترافي الخاص بك متناسق هندسياً -->
-        <footer class="text-center pt-4 border-t border-neutral-900 text-xs text-neutral-500 tracking-wide font-medium">
-            Developed with <span class="text-red-600 animate-pulse text-sm">&hearts;</span> by 
-            <a href="#" target="_blank" title="Visit My Portfolio" class="text-[var(--gold-primary)] font-bold hover:text-white transition-colors duration-300 ml-0.5">Mostafa Bahaa</a>
-        </footer>
-
+  <!-- التطبيق -->
+  <div id="appView" class="hidden space-y-4">
+    <div class="flex items-center justify-between">
+      <div><p class="text-xs text-neutral-500">أهلاً</p><p id="uName" class="font-bold text-lg"></p></div>
+      <div class="flex gap-2"><button class="ib2" onclick="hist()">الأرشيف</button><button class="ib2" onclick="account()">حسابي</button></div>
     </div>
 
-    <script>
-        // دالة إخفاء شاشة التحميل وإظهار المحتوى بانسيابية فخمة
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                var loadingScreen = document.getElementById('loading-screen');
-                var appContent = document.getElementById('app-content');
-                
-                loadingScreen.style.opacity = '0';
-                loadingScreen.style.visibility = 'hidden';
-                
-                appContent.style.opacity = '1';
-            }, 1200); // 1.2 ثانية كافية ومريحة جداً للمستخدم
-        });
+    <div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-5 lg:gap-5 items-start">
+      <div class="lg:col-span-2 space-y-4">
+        <!-- بصمة اليوم -->
+        <div id="punchCard" class="glass-card rounded-2xl p-5 space-y-4 hidden">
+          <p id="pStatus" class="text-sm text-neutral-300 text-center leading-7 min-h-[3.5rem]"></p>
+          <input id="pNote" class="fld text-sm" placeholder="ملاحظة على البصمة (اختياري)" maxlength="120">
+          <div class="grid grid-cols-2 gap-3">
+            <button id="bIn" class="pbtn in" onclick="punch('in')"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>بصمة دخول</button>
+            <button id="bOut" class="pbtn out" onclick="punch('out')"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>بصمة خروج</button>
+          </div>
+        </div>
 
-        // رابط الـ Web App الخاص بك في الـ Google Apps Script
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw63G2VbUoX0O-8-QHTeLl8D5UBVNq1YkCe_bWPlZyU_VMLb-BFmDAR6yKU0Xg4KuNQXQ/exec";
+        <!-- ملخص الشهر -->
+        <div class="glass-card rounded-2xl p-5 space-y-4">
+          <div class="text-center">
+            <p class="text-xs text-neutral-400 mb-1">صافي الشهر</p>
+            <p id="sBal" class="text-3xl font-black"></p>
+            <p id="sVerdict" class="text-xs text-neutral-400 mt-1"></p>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center text-xs">
+            <div class="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-2"><p class="text-emerald-300 mb-1">زيادة</p><b id="sEx" class="num text-sm"></b></div>
+            <div class="rounded-xl bg-rose-500/10 border border-rose-500/20 p-2"><p class="text-rose-300 mb-1">عجز</p><b id="sSh" class="num text-sm"></b></div>
+            <div class="rounded-xl bg-white/5 border border-neutral-800 p-2"><p class="text-neutral-400 mb-1">اشتغلت</p><b id="sWk" class="num text-sm"></b></div>
+          </div>
+          <p class="text-xs text-neutral-500 text-center">المطلوب لحد دلوقتي <b id="sReq" class="num text-neutral-300"></b> · الشهر كله <b id="sMon" class="num text-neutral-300"></b></p>
+          <div>
+            <div class="flex justify-between text-xs text-neutral-400 mb-1"><span>رصيد الإجازات السنوي</span><span id="lvTxt"></span></div>
+            <div class="h-2 rounded-full bg-neutral-800 overflow-hidden"><div id="lvBar" class="h-full bg-blue-400 transition-all"></div></div>
+          </div>
+          <button id="missBtn" class="hidden w-full text-sm py-2.5 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300" onclick="openFirstIssue()"></button>
+        </div>
+      </div>
 
-        function switchTab(tab) {
-            const quickTab = document.getElementById('quickTab');
-            const manualTab = document.getElementById('manualTab');
-            const quickBtn = document.getElementById('tabQuickBtn');
-            const manualBtn = document.getElementById('tabManualBtn');
+      <!-- التقويم -->
+      <div class="lg:col-span-3 glass-card rounded-2xl p-5 space-y-4">
+        <div class="flex items-center justify-between">
+          <button class="ib2" onclick="go(-1)">→</button>
+          <h2 id="mTitle" class="font-extrabold text-lg"></h2>
+          <button id="nextBtn" class="ib2 disabled:opacity-30" onclick="go(1)">←</button>
+        </div>
+        <div id="cal"></div>
+        <div class="flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-neutral-400 pt-1">
+          <span><i class="dot bg-emerald-500/60"></i>مكتمل</span><span><i class="dot bg-orange-500/60"></i>أقل من المطلوب</span>
+          <span><i class="dot bg-rose-500/70"></i>يوم منسي</span><span><i class="dot bg-yellow-500/60"></i>ناقص بصمة</span>
+          <span><i class="dot bg-blue-500/60"></i>إجازة</span><span><i class="dot bg-neutral-600"></i>جمعة</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-            if(tab === 'quick') {
-                quickTab.classList.remove('hidden');
-                manualTab.classList.add('hidden');
-                quickBtn.classList.add('tab-active');
-                manualBtn.classList.remove('tab-active');
-            } else {
-                manualTab.classList.remove('hidden');
-                quickTab.classList.add('hidden');
-                manualBtn.classList.add('tab-active');
-                quickBtn.classList.remove('tab-active');
-                
-                // تعيين الافتراضيات الذكية لليدوي
-                document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('mCheckIn').value = "11:00";
-                document.getElementById('mCheckOut').value = "19:00";
-            }
-        }
+  <footer class="text-center pt-4 border-t border-neutral-900 text-xs text-neutral-500 tracking-wide font-medium">
+    Developed with <span class="text-red-600 animate-pulse text-sm">&hearts;</span> by
+    <a href="#" target="_blank" title="Visit My Portfolio" class="text-[var(--gold-primary)] font-bold hover:text-white transition-colors duration-300 ml-0.5">Mostafa Bahaa</a>
+  </footer>
+</div>
 
-        async function fetchGlobalStats() {
-    try {
-        const res = await fetch(SCRIPT_URL);
-        const data = await res.json();
-        if(data.status === 'success') {
-            const card = document.getElementById('balanceCard');
-            const text = document.getElementById('globalBalance');
-            card.classList.remove('hidden');
-            
-            // تحقق بسيط: هل نحن في بداية شهر جديد؟ 
-            const today = new Date();
-            const isFirstDayOfMonth = today.getDate() === 1;
+<!-- تفاصيل اليوم -->
+<div id="sheet" class="hidden fixed inset-0 z-40 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center" onclick="if(event.target===this)closeDay()">
+  <div id="sheetBody" class="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl p-5 max-h-[90vh] overflow-y-auto border border-[var(--border-glow)]" style="background:#121212;padding-bottom:max(1.25rem,env(safe-area-inset-bottom))"></div>
+</div>
 
-            let bal = parseFloat(data.overallBalance);
+<script>
+window.addEventListener('load',()=>setTimeout(()=>{const l=document.getElementById('loading-screen');l.style.opacity='0';l.style.visibility='hidden';document.getElementById('app-content').style.opacity='1'},1200));
 
-            // إذا كنا في اليوم الأول من الشهر، يمكنك تصفير العداد على الواجهة اختيارياً 
-            // أو ترك الـ Google Sheet ليفلتر البيانات كما في الطريقة الأولى وهو الخيار الأضمن.
-            
-            if(bal > 0) {
-                text.innerText = `+${bal.toFixed(2)} س`;
-                text.className = "text-base font-black text-emerald-400 dir-ltr drop-shadow-[0_0_6px_rgba(52,211,153,0.2)]";
-            } else if(bal < 0) {
-                text.innerText = `${bal.toFixed(2)} س`;
-                text.className = "text-base font-black text-rose-400 dir-ltr drop-shadow-[0_0_6px_rgba(251,113,133,0.2)]";
-            } else {
-                text.innerText = `${bal.toFixed(2)}0 س`;
-                text.innerText = `${bal.toFixed(2)} س`;
-                text.className = "text-base font-black text-neutral-300 dir-ltr";
-            }
-        }
-    } catch(e) { console.error(e); }
+// ضع هنا رابط الـ Web App الجديد من Google Apps Script
+const SCRIPT_URL="PUT_YOUR_NEW_WEB_APP_URL_HERE";
+
+const S={token:null,month:null,rep:null,t0:0,day:null};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const DN=['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+const SW={background:'#161616',color:'#fff',confirmButtonColor:'#d4af37'};
+const pad=n=>String(n).padStart(2,'0');
+const toM=t=>+t.slice(0,2)*60+ +t.slice(3,5);
+const fmM=m=>{m=((Math.round(m)%1440)+1440)%1440;return pad(m/60|0)+':'+pad(m%60)};
+const fh=h=>{const s=h<-.0001?'-':'';h=Math.abs(h);let H=Math.floor(h),M=Math.round((h-H)*60);if(M==60){H++;M=0}return s+(H?H+'س':'')+(M||!H?(H?' ':'')+M+'د':'')};
+const sg=h=>(h>.0001?'+':'')+fh(h);
+const toast=(t,icon='success')=>Swal.fire({...SW,toast:true,position:'top',icon,title:t,showConfirmButton:false,timer:2600});
+const busy=on=>$('busy').style.display=on?'block':'none';
+
+async function api(action,data={}){
+  const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},redirect:'follow',body:JSON.stringify({action,token:S.token,...data})});
+  const j=await r.json();
+  if(j.status!=='success'){if(j.message==='AUTH'){logout();toast('انتهت الجلسة، سجّل دخول تاني','info')}throw new Error(j.message)}
+  return j.data;
 }
-     
+async function act(action,data,msg){busy(1);try{await api(action,data);toast(msg);await load()}catch(x){toast(x.message,'error')}busy(0)}
 
-        async function sendRequest(payload) {
-            // تخصيص SweetAlert2 ليتوافق تماماً مع الـ Dark & Gold Theme
-            Swal.fire({
-                title: 'جاري الحفظ والتشفير...',
-                html: 'يرجى عدم إغلاق الصفحة أثناء المزامنة الحية',
-                background: '#121212',
-                color: '#ffffff',
-                allowOutsideClick: false,
-                didOpen: () => { 
-                    Swal.showLoading();
-                    const loadingSpinner = Swal.getPopup().querySelector('.swal2-loader');
-                    if (loadingSpinner) {
-                        loadingSpinner.style.borderTopColor = '#d4af37';
-                    }
-                }
-            });
-
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    headers: { "Content-Type": "text/plain;charset=utf-8" },
-                    redirect: "follow",
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                
-                if(result.status === 'success') {
-                    let msg = result.message;
-                    if(result.totalHours) {
-                        msg += `<br><span class='text-xs text-neutral-400 block mt-2 font-medium'>ساعات العمل المحسوبة: ${result.totalHours} س (بونص الرصيد: ${result.balance > 0 ? '+'+result.balance : result.balance})</span>`;
-                    }
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'تمت العملية بنجاح',
-                        html: msg,
-                        background: '#161616',
-                        color: '#ffffff',
-                        confirmButtonColor: '#d4af37',
-                        confirmButtonText: 'ممتاز',
-                        iconColor: '#10b981'
-                    });
-                    fetchGlobalStats();
-                } else {
-                    throw new Error(result.message);
-                }
-            } catch(e) {
-                Swal.fire({ 
-                    icon: 'error', 
-                    title: 'فشلت العملية', 
-                    text: 'حدث خطأ غير متوقع أثناء الاتصال بقواعد البيانات.',
-                    background: '#161616',
-                    color: '#ffffff',
-                    confirmButtonColor: '#ef4444',
-                    iconColor: '#ef4444'
-                });
-            }
-        }
-
-        function sendQuickStamp(actionType) {
-            const now = new Date();
-            const dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
-            const hours = String(now.getHours()).padStart(2, '0');
-            const mins = String(now.getMinutes()).padStart(2, '0');
-            const timeStr = `${hours}:${mins}`;
-
-            sendRequest({
-                type: actionType,
-                date: dateStr,
-                time: timeStr
-            });
-        }
-
-        document.getElementById('manualForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            sendRequest({
-                type: 'historical',
-                date: document.getElementById('mDate').value,
-                checkIn: document.getElementById('mCheckIn').value,
-                checkOut: document.getElementById('mCheckOut').value
-            });
-        });
-
-        window.onload = fetchGlobalStats;
-
-        // تسجيل الـ Service Worker للـ PWA
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('Service Worker registered successfully!', reg))
-            .catch(err => console.log('Service Worker registration failed:', err));
-    });
+/* ---------- الدخول ---------- */
+function init(){S.token=localStorage.getItem('bs_t')||sessionStorage.getItem('bs_t');if(S.token){showApp();load()}else showLogin()}
+function showLogin(){$('appView').classList.add('hidden');$('loginView').classList.remove('hidden')}
+function showApp(){$('loginView').classList.add('hidden');$('appView').classList.remove('hidden')}
+async function doLogin(e){
+  e.preventDefault();busy(1);
+  try{const d=await api('login',{code:$('lc').value.trim(),password:$('lp').value});
+    S.token=d.token;(($('lr').checked)?localStorage:sessionStorage).setItem('bs_t',d.token);$('lp').value='';S.month=null;showApp();await load()}
+  catch(x){toast(x.message,'error')}
+  busy(0)
 }
-    </script>
+function logout(){
+  localStorage.removeItem('bs_t');sessionStorage.removeItem('bs_t');
+  Object.keys(localStorage).filter(k=>k.startsWith('bs_c_')).forEach(k=>localStorage.removeItem(k));
+  S.token=S.rep=S.month=null;closeDay();showLogin()
+}
+
+/* ---------- تحميل الشهر ---------- */
+async function load(m){
+  if(m)S.month=m;
+  try{const c=JSON.parse(localStorage.getItem('bs_c_'+(S.month||'cur')));if(c&&!S.rep){S.rep=c;render()}}catch(_){}
+  busy(1);
+  try{S.rep=await api('month',{month:S.month});S.month=S.rep.month;S.t0=Date.now();
+    localStorage.setItem('bs_c_'+S.month,JSON.stringify(S.rep));
+    if(S.rep.today.slice(0,7)===S.month)localStorage.setItem('bs_c_cur',JSON.stringify(S.rep));
+    render()}
+  catch(x){if(x.message!=='AUTH')toast(x.message,'error')}
+  busy(0)
+}
+function go(n){let[y,m]=S.month.split('-').map(Number);m+=n;if(m<1){m=12;y--}if(m>12){m=1;y++}S.rep=null;load(y+'-'+pad(m))}
+
+/* ---------- العرض ---------- */
+function render(){
+  const r=S.rep,t=r.totals,b=t.balance;
+  $('uName').textContent=r.user.name;
+  $('mTitle').textContent=MN[+r.month.slice(5)-1]+' '+r.month.slice(0,4);
+  $('nextBtn').disabled=r.month>=r.today.slice(0,7);
+  $('sBal').innerHTML=`<span class="num ${b>0?'text-emerald-400':b<0?'text-rose-400':'text-neutral-300'}">${sg(b)}</span>`;
+  $('sVerdict').textContent=b>0?'الزيادة أكتر من العجز':b<0?'العجز أكتر من الزيادة':'الزيادة والعجز متعادلين';
+  $('sEx').textContent=fh(t.extra);$('sSh').textContent=fh(t.short);$('sWk').textContent=fh(t.worked);
+  $('sReq').textContent=fh(t.required);$('sMon').textContent=fh(t.monthRequired);
+  const L=r.leave;$('lvTxt').textContent=`باقي ${L.remaining} من ${L.total} يوم`;$('lvBar').style.width=Math.max(0,L.remaining/L.total*100)+'%';
+  const mb=$('missBtn');mb.classList.toggle('hidden',!t.missingDays);mb.textContent=`⚠ ${t.missingDays} ${t.missingDays>10?'يوم':'أيام'} محتاجة مراجعة، اضغط لإدخالها`;
+  renderPunch();renderCal();if(S.day)renderDay()
+}
+function renderPunch(){
+  const r=S.rep,cur=r.today.slice(0,7)===r.month;$('punchCard').classList.toggle('hidden',!cur);if(!cur)return;
+  const d=r.days.find(x=>x.date===r.today);$('bIn').disabled=d.open;$('bOut').disabled=!d.open;pStatus()
+}
+function pStatus(){
+  const r=S.rep;if(!r||r.today.slice(0,7)!==r.month)return;
+  const d=r.days.find(x=>x.date===r.today),now=toM(r.now)+(Date.now()-S.t0)/60000;let s;
+  if(!d.punches.length)s='لسه مسجلتش دخول النهارده'+(d.required?'':'<br>النهارده إجازة، أي ساعات هتتحسب زيادة');
+  else if(d.open){const sm=toM(r.openSince),need=d.required*60-d.worked*60,rem=sm+need-now;
+    s=`داخل من <b class="num">${r.openSince}</b> · عدّى <b class="num">${fh((now-sm)/60)}</b>`+(d.required?(rem>0?`<br>تقدر تمشي الساعة <b class="num text-[var(--gold-light)]">${fmM(sm+need)}</b> (باقي ${fh(rem/60)})`:'<br>كمّلت ساعات اليوم ✅ والزيادة بتتحسب'):'<br>يوم إجازة، كل الساعات زيادة')}
+  else s=`آخر خروج <b class="num">${d.punches[d.punches.length-1].time}</b> · إجمالي اليوم <b class="num">${fh(d.worked)}</b>`;
+  $('pStatus').innerHTML=s
+}
+setInterval(pStatus,30000);
+
+const cls=(d,T)=>d.status==='leave'?'c-leave':d.issue==='missing'?'c-missing':d.issue==='incomplete'?'c-incomp':d.date>T?(d.status==='off'?'c-off':'c-future'):d.date===T&&!d.counted?'c-prog':d.status==='off'&&!d.punches.length?'c-off':(d.worked-d.required>=-.01?'c-ok':'c-short');
+function renderCal(){
+  const r=S.rep;
+  let h=['سبت','أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة'].map(x=>`<div class="text-[11px] text-neutral-500 text-center pb-1">${x}</div>`).join('')+'<div></div>'.repeat((r.days[0].dow+1)%7);
+  r.days.forEach(d=>{h+=`<button onclick="openDay('${d.date}')" class="cell ${cls(d,r.today)}${d.date===r.today?' tdy':''}"><span>${+d.date.slice(8)}</span><small class="num">${d.worked?+d.worked.toFixed(1):''}</small>${d.note||d.punches.some(p=>p.note)?'<i></i>':''}</button>`});
+  $('cal').innerHTML=h
+}
+function openFirstIssue(){const d=S.rep.days.find(x=>x.issue);if(d)openDay(d.date)}
+
+/* ---------- البصمة ---------- */
+async function punch(type){
+  busy(1);
+  try{const d=await api('punch',{type,note:$('pNote').value});$('pNote').value='';toast((type==='in'?'تم تسجيل الدخول ':'تم تسجيل الخروج ')+d.time);await load()}
+  catch(x){toast(x.message,'error')}
+  busy(0)
+}
+
+/* ---------- تفاصيل اليوم ---------- */
+function openDay(date){S.day=date;renderDay();$('sheet').classList.remove('hidden')}
+function closeDay(){S.day=null;$('sheet').classList.add('hidden')}
+function renderDay(){
+  const r=S.rep,d=r.days.find(x=>x.date===S.day);if(!d){closeDay();return}
+  const fut=d.date>r.today,canLeave=d.status!=='off'||d.override==='leave';
+  const rows=d.punches.map(p=>`<div class="flex items-center gap-2 py-2 border-b border-neutral-800/70"><span class="${p.type==='in'?'text-emerald-400':'text-rose-400'} text-xs font-bold w-10">${p.type==='in'?'دخول':'خروج'}</span><b class="num">${p.time}</b><span class="flex-1 text-xs text-neutral-400 truncate">${esc(p.note)}${p.source==='manual'?' <em class="text-[10px] text-neutral-600">(يدوي)</em>':''}</span><button class="lnk" onclick="editP('${p.id}')">تعديل</button><button class="lnk !text-rose-400" onclick="delP('${p.id}')">حذف</button></div>`).join('')||'<p class="text-xs text-neutral-500 py-3 text-center">مفيش بصمات في اليوم ده</p>';
+  const tag={missing:'يوم منسي',incomplete:'ناقص بصمة خروج أو دخول'}[d.issue]||'';
+  $('sheetBody').innerHTML=`
+  <div class="flex items-center justify-between mb-3"><div><h3 class="font-extrabold text-lg">${DN[d.dow]} ${+d.date.slice(8)} ${MN[+d.date.slice(5,7)-1]}</h3>
+    <p class="text-xs text-neutral-400">اشتغلت <b class="num">${fh(d.worked)}</b> من <b class="num">${fh(d.required)}</b>${tag?` · <span class="text-rose-300">${tag}</span>`:''}</p></div>
+    <button class="ib2" onclick="closeDay()">✕</button></div>
+  ${rows}
+  ${fut?'':`<div class="mt-4 space-y-2"><p class="text-xs font-bold text-neutral-400">إضافة بصمة منسية</p>
+    <div class="grid grid-cols-2 gap-2"><label class="text-xs text-neutral-500">دخول<input id="aIn" type="time" class="fld mt-1" value="${d.punches.length?'':'11:00'}"></label><label class="text-xs text-neutral-500">خروج<input id="aOut" type="time" class="fld mt-1" value="${d.punches.length?'':'19:00'}"></label></div>
+    <button class="btn-gold" onclick="addP()">إضافة</button></div>`}
+  <div class="mt-4 space-y-2"><p class="text-xs font-bold text-neutral-400">حالة اليوم وملاحظة</p>
+    ${canLeave?`<select id="dS" class="fld"><option value="">يوم عادي</option><option value="leave" ${d.override==='leave'?'selected':''}>إجازة سنوية (باقي ${r.leave.remaining})</option></select>`:''}
+    <textarea id="dN" rows="2" maxlength="300" class="fld text-sm" placeholder="ملاحظة عن اليوم (اختياري)">${esc(d.note)}</textarea>
+    <button class="ib2 w-full" onclick="saveDay()">حفظ الحالة والملاحظة</button></div>`
+}
+async function addP(){
+  const i=$('aIn').value,o=$('aOut').value;if(!i&&!o)return toast('اكتب وقت دخول أو خروج','warning');
+  busy(1);
+  try{if(i)await api('addPunch',{date:S.day,time:i,type:'in'});if(o)await api('addPunch',{date:S.day,time:o,type:'out'});toast('تمت الإضافة')}
+  catch(x){toast(x.message,'error')}
+  await load();busy(0)
+}
+function saveDay(){const d=S.rep.days.find(x=>x.date===S.day);act('setDayStatus',{date:S.day,status:$('dS')?$('dS').value:d.override,note:$('dN').value},'تم الحفظ')}
+async function editP(id){
+  const p=S.rep.days.find(x=>x.date===S.day).punches.find(x=>x.id===id);
+  const v=await Swal.fire({...SW,title:'تعديل بصمة',showCancelButton:true,confirmButtonText:'حفظ',cancelButtonText:'إلغاء',
+    html:`<select id="eT" class="swin"><option value="in" ${p.type==='in'?'selected':''}>دخول</option><option value="out" ${p.type==='out'?'selected':''}>خروج</option></select><input id="eM" type="time" class="swin" value="${p.time}"><input id="eN" class="swin" placeholder="ملاحظة" value="${esc(p.note)}">`,
+    preConfirm:()=>({type:$('eT').value,time:$('eM').value,note:$('eN').value})});
+  if(v.isConfirmed)act('editPunch',{id,...v.value},'تم التعديل')
+}
+async function delP(id){
+  const v=await Swal.fire({...SW,title:'حذف البصمة؟',icon:'warning',showCancelButton:true,confirmButtonText:'حذف',cancelButtonText:'إلغاء',confirmButtonColor:'#e11d48'});
+  if(v.isConfirmed)act('deletePunch',{id},'تم الحذف')
+}
+
+/* ---------- الحساب والأرشيف ---------- */
+async function account(){
+  const v=await Swal.fire({...SW,title:S.rep?S.rep.user.name:'حسابي',showCancelButton:true,showDenyButton:true,confirmButtonText:'تغيير الباسوورد',denyButtonText:'تسجيل خروج',cancelButtonText:'إغلاق',
+    html:'<input id="o" type="password" class="swin" placeholder="الباسوورد الحالي"><input id="n1" type="password" class="swin" placeholder="الباسوورد الجديد"><input id="n2" type="password" class="swin" placeholder="تأكيد الباسوورد الجديد">',
+    preConfirm:()=>{if($('n1').value!==$('n2').value){Swal.showValidationMessage('الباسوورد الجديد مش متطابق');return false}return{oldPassword:$('o').value,newPassword:$('n1').value}}});
+  if(v.isDenied)logout();else if(v.isConfirmed)act('changePassword',v.value,'تم تغيير الباسوورد')
+}
+async function hist(){
+  busy(1);let h;try{h=await api('history')}catch(x){busy(0);return toast(x.message,'error')}busy(0);
+  const rows=h.map(x=>`<tr class="border-b border-neutral-800"><td class="py-2">${MN[+x.month.slice(5)-1]} ${x.month.slice(0,4)}</td><td><b class="num ${x.balance>=0?'text-emerald-400':'text-rose-400'}">${sg(x.balance)}</b></td><td><span class="num">${fh(x.worked)}</span></td></tr>`).join('')||'<tr><td class="py-4 text-neutral-500" colspan="3">لسه مفيش شهور مقفولة</td></tr>';
+  const v=await Swal.fire({...SW,title:'أرشيف الشهور',showCancelButton:true,confirmButtonText:'قفل شهر '+MN[+S.month.slice(5)-1],cancelButtonText:'إغلاق',
+    html:`<table class="w-full text-sm text-center"><tr class="text-neutral-500 text-xs"><th>الشهر</th><th>الصافي</th><th>الساعات</th></tr>${rows}</table>`});
+  if(!v.isConfirmed)return;
+  const c=await Swal.fire({...SW,title:'قفل الشهر',text:'هيتحفظ ملخص الشهر في الأرشيف، ورصيد الإجازات مش بيتأثر.',input:'checkbox',inputPlaceholder:'امسح تفاصيل البصمات بعد الحفظ',showCancelButton:true,confirmButtonText:'قفل',cancelButtonText:'إلغاء'});
+  if(c.isConfirmed)act('closeMonth',{month:S.month,deleteData:!!c.value},'تم قفل الشهر')
+}
+
+init();
+
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').then(r=>console.log('Service Worker registered successfully!',r)).catch(e=>console.log('Service Worker registration failed:',e))})}
+</script>
 </body>
 </html>
