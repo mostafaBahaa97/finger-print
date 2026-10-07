@@ -89,7 +89,7 @@ input,select,textarea,button{font-size:16px}
   <!-- التطبيق -->
   <div id="appView" class="hidden space-y-4">
     <div class="flex items-center justify-between">
-      <div><p class="text-xs text-neutral-500">أهلاً</p><p id="uName" class="font-bold text-lg"></p></div>
+      <div><p class="text-xs text-neutral-500">أهلاً <span id="sync" class="hidden text-[var(--gold-primary)] animate-pulse mr-1">⟳ بيتحدّث…</span></p><p id="uName" class="font-bold text-lg"></p></div>
       <div class="flex gap-2"><button class="ib2" onclick="hist()">الأرشيف</button><button class="ib2" onclick="account()">حسابي</button></div>
     </div>
 
@@ -158,9 +158,9 @@ input,select,textarea,button{font-size:16px}
 window.addEventListener('load',()=>setTimeout(()=>{const l=document.getElementById('loading-screen');l.style.opacity='0';l.style.visibility='hidden';document.getElementById('app-content').style.opacity='1'},1200));
 
 // ضع هنا رابط الـ Web App الجديد من Google Apps Script
-const SCRIPT_URL="https://script.google.com/macros/s/AKfycbzoub-jj1n_6mWNcD2fd_8sV9h8R9A3bpQ8HyTun9qxJaP4mhE1D0773Jaxseg-7jgM/exec";
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycby00fYV5zEQYWWqCQbqoGTcIMgdqk_tahmRlE0RxwUg0F_WMGgUB5d1y4KNzrnrtY97/exec";
 
-const S={token:null,month:null,rep:null,t0:0,day:null};
+const S={token:null,month:null,rep:null,t0:0,day:null,fresh:false};
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -175,12 +175,12 @@ const toast=(t,icon='success')=>Swal.fire({...SW,toast:true,position:'top',icon,
 const busy=on=>$('busy').style.display=on?'block':'none';
 
 async function api(action,data={}){
-  const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},redirect:'follow',body:JSON.stringify({action,token:S.token,...data})});
+  const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},redirect:'follow',body:JSON.stringify({action,token:S.token,month:S.month,...data})});
   const j=await r.json();
   if(j.status!=='success'){if(j.message==='AUTH'){logout();toast('انتهت الجلسة، سجّل دخول تاني','info')}throw new Error(j.message)}
   return j.data;
 }
-async function act(action,data,msg){busy(1);try{await api(action,data);toast(msg);await load()}catch(x){toast(x.message,'error')}busy(0)}
+async function act(action,data,msg){busy(1);try{const d=await api(action,data);toast(msg);if(d&&d.report)apply(d.report)}catch(x){toast(x.message,'error')}busy(0)}
 
 /* ---------- الدخول ---------- */
 function init(){S.token=localStorage.getItem('bs_t')||sessionStorage.getItem('bs_t');if(S.token){showApp();load()}else showLogin()}
@@ -195,23 +195,32 @@ async function doLogin(e){
 }
 function logout(){
   localStorage.removeItem('bs_t');sessionStorage.removeItem('bs_t');
-  Object.keys(localStorage).filter(k=>k.startsWith('bs_c_')).forEach(k=>localStorage.removeItem(k));
+  Object.keys(localStorage).filter(k=>k.startsWith('bs_c_')||k.startsWith('bs2_')).forEach(k=>localStorage.removeItem(k));
   S.token=S.rep=S.month=null;closeDay();showLogin()
 }
 
-/* ---------- تحميل الشهر ---------- */
+/* ---------- تحميل الشهر + التخزين المحلي ---------- */
+// الداتا بتتخزن على الجهاز (لكل موظف) وبتتعرض فورًا، وبعدها بتتحدّث من السيرفر في الخلفية
+const uc=()=>S.token.split('|')[0];
+const ck=m=>'bs2_'+uc()+'_'+m;
+const okR=r=>!!(r&&r.user&&r.days&&r.totals&&r.leave);
+function rd(m){try{const c=JSON.parse(localStorage.getItem(ck(m)));return c&&okR(c.rep)?c:null}catch(_){return null}}
+function wr(rep,t){try{const v=JSON.stringify({t,rep});localStorage.setItem(ck(rep.month),v);if(rep.today.slice(0,7)===rep.month)localStorage.setItem(ck('cur'),v)}catch(_){}}
+function wipe(){Object.keys(localStorage).filter(k=>k.startsWith('bs_c_')||k.startsWith('bs2_')).forEach(k=>localStorage.removeItem(k))}
+function safeRender(){try{if(!okR(S.rep))throw 0;render();return true}catch(e){console.error(e);wipe();S.rep=null;S.fresh=false;return false}}
+function apply(rep){S.rep=rep;S.month=rep.month;S.t0=Date.now();S.fresh=true;wr(rep,S.t0);if(!safeRender())throw new Error('حصل خطأ في عرض البيانات، حدّث الصفحة وجرّب تاني')}
 async function load(m){
   if(m)S.month=m;
-  try{const c=JSON.parse(localStorage.getItem('bs_c_'+(S.month||'cur')));if(c&&!S.rep){S.rep=c;render()}}catch(_){}
-  busy(1);
-  try{S.rep=await api('month',{month:S.month});S.month=S.rep.month;S.t0=Date.now();
-    localStorage.setItem('bs_c_'+S.month,JSON.stringify(S.rep));
-    if(S.rep.today.slice(0,7)===S.month)localStorage.setItem('bs_c_cur',JSON.stringify(S.rep));
-    render()}
-  catch(x){if(x.message!=='AUTH')toast(x.message,'error')}
-  busy(0)
+  const alias=!S.month,c=rd(S.month||'cur');
+  if(c){S.rep=c.rep;S.month=c.rep.month;S.t0=c.t;S.fresh=false;safeRender();
+    if(S.rep&&c.rep.month<c.rep.today.slice(0,7)&&Date.now()-c.t<36e5){S.fresh=true;safeRender();return}}
+  else $('appView').classList.add('opacity-50');
+  $('sync').classList.remove('hidden');
+  try{const rep=await api('month',{month:alias?undefined:S.month});if(!okR(rep))throw new Error('نسخة الباك إند قديمة، اعمل Deploy جديد لـ Code.gs');apply(rep)}
+  catch(x){if(x.message!=='AUTH')toast(S.rep?'مفيش اتصال، معروض آخر نسخة محفوظة':x.message,S.rep?'info':'error')}
+  $('sync').classList.add('hidden');$('appView').classList.remove('opacity-50')
 }
-function go(n){let[y,m]=S.month.split('-').map(Number);m+=n;if(m<1){m=12;y--}if(m>12){m=1;y++}S.rep=null;load(y+'-'+pad(m))}
+function go(n){let[y,m]=S.month.split('-').map(Number);m+=n;if(m<1){m=12;y--}if(m>12){m=1;y++}load(y+'-'+pad(m))}
 
 /* ---------- العرض ---------- */
 function render(){
@@ -229,10 +238,11 @@ function render(){
 }
 function renderPunch(){
   const r=S.rep,cur=r.today.slice(0,7)===r.month;$('punchCard').classList.toggle('hidden',!cur);if(!cur)return;
-  const d=r.days.find(x=>x.date===r.today);$('bIn').disabled=d.open;$('bOut').disabled=!d.open;pStatus()
+  const d=r.days.find(x=>x.date===r.today);$('bIn').disabled=d.open||!S.fresh;$('bOut').disabled=!d.open||!S.fresh;pStatus()
 }
 function pStatus(){
   const r=S.rep;if(!r||r.today.slice(0,7)!==r.month)return;
+  if(!S.fresh){$('pStatus').textContent='جاري تحديث بيانات اليوم…';return}
   const d=r.days.find(x=>x.date===r.today),now=toM(r.now)+(Date.now()-S.t0)/60000;let s;
   if(!d.punches.length)s='لسه مسجلتش دخول النهارده'+(d.required?'':'<br>النهارده إجازة، أي ساعات هتتحسب زيادة');
   else if(d.open){const sm=toM(r.openSince),need=d.required*60-d.worked*60,rem=sm+need-now;
@@ -254,7 +264,7 @@ function openFirstIssue(){const d=S.rep.days.find(x=>x.issue);if(d)openDay(d.dat
 /* ---------- البصمة ---------- */
 async function punch(type){
   busy(1);
-  try{const d=await api('punch',{type,note:$('pNote').value});$('pNote').value='';toast((type==='in'?'تم تسجيل الدخول ':'تم تسجيل الخروج ')+d.time);await load()}
+  try{const d=await api('punch',{type,note:$('pNote').value});$('pNote').value='';toast((type==='in'?'تم تسجيل الدخول ':'تم تسجيل الخروج ')+d.result.time);apply(d.report)}
   catch(x){toast(x.message,'error')}
   busy(0)
 }
@@ -283,9 +293,10 @@ function renderDay(){
 async function addP(){
   const i=$('aIn').value,o=$('aOut').value;if(!i&&!o)return toast('اكتب وقت دخول أو خروج','warning');
   busy(1);
-  try{if(i)await api('addPunch',{date:S.day,time:i,type:'in'});if(o)await api('addPunch',{date:S.day,time:o,type:'out'});toast('تمت الإضافة')}
-  catch(x){toast(x.message,'error')}
-  await load();busy(0)
+  let rep;
+  try{if(i)rep=(await api('addPunch',{date:S.day,time:i,type:'in'})).report;if(o)rep=(await api('addPunch',{date:S.day,time:o,type:'out'})).report;toast('تمت الإضافة');apply(rep)}
+  catch(x){toast(x.message,'error');if(rep)apply(rep);else load()}
+  busy(0)
 }
 function saveDay(){const d=S.rep.days.find(x=>x.date===S.day);act('setDayStatus',{date:S.day,status:$('dS')?$('dS').value:d.override,note:$('dN').value},'تم الحفظ')}
 async function editP(id){
@@ -317,6 +328,7 @@ async function hist(){
   if(c.isConfirmed)act('closeMonth',{month:S.month,deleteData:!!c.value},'تم قفل الشهر')
 }
 
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&S.token&&S.rep&&Date.now()-S.t0>6e4){if(S.month===S.rep.today.slice(0,7))S.month=null;load()}});
 init();
 
 if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('./sw.js').then(r=>console.log('Service Worker registered successfully!',r)).catch(e=>console.log('Service Worker registration failed:',e))})}
